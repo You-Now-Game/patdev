@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+dist
+build
+.env
+.env.local
+.env*.local
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+/public/uploads/*
+!/public/uploads/.gitkeep
+/prisma/dev.db
+/prisma/dev.db-journal
+.vercel

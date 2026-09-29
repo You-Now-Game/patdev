@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  BUILDER
+}
+
+enum ObjectType {
+  APARTMENT
+  HOUSE
+}
+
+enum ObjectStatus {
+  IN_PROGRESS
+  DONE
+}
+
+// Порядок значений enum ниже соответствует порядку этапов на макете:
+// Дизайн-макет -> Черновые -> Технические -> Рабочие -> Чистовые
+enum StageType {
+  DESIGN
+  ROUGH
+  TECHNICAL
+  WORKING
+  FINISHING
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String?  @unique
+  phone        String?  @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  builderObjects ConstructionObject[] @relation("BuilderObjects")
+  clientObjects  ConstructionObject[] @relation("ClientObjects")
+}
+
+model ConstructionObject {
+  id        String       @id @default(cuid())
+  type      ObjectType
+  address   String
+  area      Float
+  rooms     Int?
+  status    ObjectStatus @default(IN_PROGRESS)
+  photoUrl  String?
+  startDate DateTime
+  createdAt DateTime     @default(now())
+
+  builderId String
+  builder   User   @relation("BuilderObjects", fields: [builderId], references: [id], onDelete: Cascade)
+
+  clientId String?
+  client   User?   @relation("ClientObjects", fields: [clientId], references: [id], onDelete: SetNull)
+
+  progress  WorkProgress[]
+  visits    Visit[]
+  materials Material[]
+}
+
+model WorkProgress {
+  id        String     @id @default(cuid())
+  objectId  String
+  object    ConstructionObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  stage     StageType
+  percent   Int        @default(0)
+  updatedAt DateTime   @updatedAt
+
+  @@unique([objectId, stage])
+}
+
+model Visit {
+  id            String     @id @default(cuid())
+  objectId      String
+  object        ConstructionObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  date          DateTime
+  timeFrom      String
+  timeTo        String
+  stage         StageType
+  description   String
+  progressAfter Int
+  createdAt     DateTime   @default(now())
+}
+
+model Material {
+  id        String     @id @default(cuid())
+  objectId  String
+  object    ConstructionObject @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  stage     StageType
+  name      String
+  unit      String
+  remaining Float      @default(0)
+  createdAt DateTime   @default(now())
+}
