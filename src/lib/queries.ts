@@ -46,3 +46,29 @@ export async function getBuilderObjectDetail(builderId: string, objectId: string
     },
   });
 }
+
+export function getAllUsers() {
+  return prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      createdAt: true,
+      _count: { select: { builderObjects: true, clientObjects: true } },
+    },
+  });
+}
+
+export function getAllObjectsOverview() {
+  return prisma.constructionObject.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      builder: { select: { name: true, email: true } },
+      client: { select: { name: true, email: true } },
+      progress: true,
+    },
+  });
+}

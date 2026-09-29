@@ -5,11 +5,8 @@ import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { signIn } from "@/lib/auth";
+import { portalPath } from "@/lib/portal";
 import type { Role } from "@prisma/client";
-
-function portalPath(role: Role) {
-  return role === "CLIENT" ? "/client/object" : "/builder/objects";
-}
 
 export async function loginAction(formData: FormData) {
   const login = String(formData.get("login") ?? "").trim();
@@ -24,10 +21,12 @@ export async function loginAction(formData: FormData) {
     where: { OR: [{ email: login }, { phone: login }] },
   });
   if (existing && existing.role !== role) {
-    const message =
-      existing.role === "BUILDER"
-        ? "Этот аккаунт зарегистрирован как строитель — переключите роль слева"
-        : "Этот аккаунт зарегистрирован как клиент — переключите роль слева";
+    const roleLabel: Record<Role, string> = {
+      CLIENT: "клиент",
+      BUILDER: "строитель",
+      ADMIN: "администратор",
+    };
+    const message = `Этот аккаунт зарегистрирован как ${roleLabel[existing.role]} — переключите роль слева`;
     redirect(`/login?role=${role}&error=${encodeURIComponent(message)}`);
   }
 
@@ -48,17 +47,22 @@ export async function loginAction(formData: FormData) {
   }
 }
 
+// Публичная регистрация доступна только для роли "клиент". Аккаунты
+// строителей и администратора заводит администратор из /admin/users —
+// это закрывает риск, что кто угодно самостоятельно зарегистрируется
+// как строитель и получит доступ к редактированию чужих объектов.
+const role: Role = "CLIENT";
+
 export async function registerAction(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const login = String(formData.get("login") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const role = String(formData.get("role") ?? "") as Role;
 
   if (!name || !login || !password) {
-    redirect(`/register?role=${role}&error=${encodeURIComponent("Заполните все поля")}`);
+    redirect(`/register?error=${encodeURIComponent("Заполните все поля")}`);
   }
   if (password.length < 6) {
-    redirect(`/register?role=${role}&error=${encodeURIComponent("Пароль должен быть не короче 6 символов")}`);
+    redirect(`/register?error=${encodeURIComponent("Пароль должен быть не короче 6 символов")}`);
   }
 
   const isEmail = login.includes("@");
@@ -66,7 +70,7 @@ export async function registerAction(formData: FormData) {
     where: isEmail ? { email: login } : { phone: login },
   });
   if (existing) {
-    redirect(`/register?role=${role}&error=${encodeURIComponent("Аккаунт с такими данными уже существует")}`);
+    redirect(`/register?error=${encodeURIComponent("Аккаунт с такими данными уже существует")}`);
   }
 
   const passwordHash = await bcrypt.hash(password, 10);

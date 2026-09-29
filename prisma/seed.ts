@@ -30,6 +30,17 @@ async function main() {
     },
   });
 
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@patinastudio.ru" },
+    update: {},
+    create: {
+      name: "Администратор",
+      email: "admin@patinastudio.ru",
+      role: "ADMIN",
+      passwordHash,
+    },
+  });
+
   const flatProgress: { stage: StageType; percent: number }[] = [
     { stage: "DESIGN", percent: 100 },
     { stage: "ROUGH", percent: 80 },
@@ -187,9 +198,10 @@ async function main() {
   });
 
   console.log("Сид-данные готовы:");
-  console.log(`  Строитель: ${builder.email} / ${DEMO_PASSWORD}`);
-  console.log(`  Клиент:    ${client.email} / ${DEMO_PASSWORD}`);
-  console.log(`  Объект:    ${flat.address}`);
+  console.log(`  Администратор: ${admin.email} / ${DEMO_PASSWORD} (вход на /admin/login)`);
+  console.log(`  Строитель:     ${builder.email} / ${DEMO_PASSWORD}`);
+  console.log(`  Клиент:        ${client.email} / ${DEMO_PASSWORD}`);
+  console.log(`  Объект:        ${flat.address}`);
 }
 
 main()

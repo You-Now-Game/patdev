@@ -14,9 +14,12 @@ export default auth((req) => {
   if (pathname.startsWith("/builder") && role !== "BUILDER") {
     return NextResponse.redirect(new URL("/login?portal=builder", req.url));
   }
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login" && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/admin/login", req.url));
+  }
   return NextResponse.next();
 });
 
 export const config = {
-  matcher: ["/client/:path*", "/builder/:path*"],
+  matcher: ["/client/:path*", "/builder/:path*", "/admin/:path*"],
 };

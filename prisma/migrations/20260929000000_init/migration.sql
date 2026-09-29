@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('CLIENT', 'BUILDER');
+CREATE TYPE "Role" AS ENUM ('CLIENT', 'BUILDER', 'ADMIN');
 
 -- CreateEnum
 CREATE TYPE "ObjectType" AS ENUM ('APARTMENT', 'HOUSE');

@@ -70,12 +70,14 @@ export function LoginForm({ initialRole, error }: { initialRole: "CLIENT" | "BUI
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-ink-muted">
-        Нет аккаунта?{" "}
-        <Link href={`/register?role=${role}`} className="font-semibold text-brand">
-          Зарегистрироваться
-        </Link>
-      </p>
+      {role === "CLIENT" && (
+        <p className="mt-4 text-center text-sm text-ink-muted">
+          Нет аккаунта?{" "}
+          <Link href="/register" className="font-semibold text-brand">
+            Зарегистрироваться
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
