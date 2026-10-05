@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+export const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_SIZE = 10 * 1024 * 1024; // 10 МБ, как указано на макете
