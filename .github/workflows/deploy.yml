@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new \
+            "$SSH_USER@$SSH_HOST" 'bash -s' << 'EOF'
+          set -euo pipefail
+          cd /opt/patina
+          git fetch origin main
+          git reset --hard origin/main
+          if [ -f deploy/nginx/patinastudio.tech.conf ]; then
+            cp deploy/nginx/patinastudio.tech.conf /etc/nginx/sites-available/patinastudio.tech
+            nginx -t
+            systemctl reload nginx
+          fi
+          docker compose -f docker-compose.prod.yml up -d --build
+          EOF
