@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function BuilderSidebar({ objectIds }: { objectIds: string[] }) {
+export function BuilderSidebar({
+  objectIds,
+  showAdminLink = false,
+}: {
+  objectIds: string[];
+  showAdminLink?: boolean;
+}) {
   const pathname = usePathname();
   const match = pathname.match(/^\/builder\/objects\/([^/]+)/);
   const currentId = match?.[1] ?? objectIds[0];
@@ -50,6 +56,14 @@ export function BuilderSidebar({ objectIds }: { objectIds: string[] }) {
             );
           })}
         </nav>
+        {showAdminLink && (
+          <Link
+            href="/admin/users"
+            className="mt-4 block rounded-xl px-3 py-2.5 text-sm font-medium text-ink-light hover:bg-cream-200"
+          >
+            В админку
+          </Link>
+        )}
       </div>
       <div className="rounded-xl bg-cream-200 px-3 py-3">
         <p className="text-xs text-ink-muted">Режим доступа</p>

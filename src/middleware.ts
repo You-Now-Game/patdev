@@ -11,7 +11,7 @@ export default auth((req) => {
   if (pathname.startsWith("/client") && role !== "CLIENT") {
     return NextResponse.redirect(new URL("/login?portal=client", req.url));
   }
-  if (pathname.startsWith("/builder") && role !== "BUILDER") {
+  if (pathname.startsWith("/builder") && role !== "BUILDER" && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/login?portal=builder", req.url));
   }
   if (pathname.startsWith("/admin") && pathname !== "/admin/login" && role !== "ADMIN") {

@@ -5,10 +5,11 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { STAGE_ORDER } from "@/lib/stages";
 import { clamp } from "@/lib/utils";
+import { canEditAsBuilder } from "@/lib/access";
 
 export async function updateProgressAction(objectId: string, formData: FormData) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "BUILDER") throw new Error("Не авторизован");
+  if (!session?.user || !canEditAsBuilder(session.user.role)) throw new Error("Не авторизован");
 
   const object = await prisma.constructionObject.findFirst({
     where: { id: objectId, builderId: session.user.id },

@@ -20,7 +20,9 @@ export async function loginAction(formData: FormData) {
   const existing = await prisma.user.findFirst({
     where: { OR: [{ email: login }, { phone: login }] },
   });
-  if (existing && existing.role !== role) {
+  const canUseRole =
+    !!existing && (existing.role === role || (existing.role === "ADMIN" && role === "BUILDER"));
+  if (existing && !canUseRole) {
     const roleLabel: Record<Role, string> = {
       CLIENT: "клиент",
       BUILDER: "строитель",

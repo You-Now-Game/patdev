@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 const NAV_ITEMS = [
   { href: "/admin/users", label: "Пользователи" },
   { href: "/admin/objects", label: "Объекты" },
+  { href: "/builder/objects", label: "Кабинет строителя" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

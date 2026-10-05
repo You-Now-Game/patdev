@@ -7,10 +7,11 @@ import { auth } from "@/lib/auth";
 import { saveObjectPhoto, UploadError } from "@/lib/storage";
 import { STAGE_ORDER } from "@/lib/stages";
 import type { ObjectType } from "@prisma/client";
+import { canEditAsBuilder } from "@/lib/access";
 
 async function requireBuilder() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "BUILDER") throw new Error("Не авторизован");
+  if (!session?.user || !canEditAsBuilder(session.user.role)) throw new Error("Не авторизован");
   return session.user;
 }
 

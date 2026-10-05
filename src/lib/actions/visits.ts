@@ -6,10 +6,11 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { clamp } from "@/lib/utils";
 import type { StageType } from "@prisma/client";
+import { canEditAsBuilder } from "@/lib/access";
 
 async function requireOwnedObject(objectId: string) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "BUILDER") throw new Error("Не авторизован");
+  if (!session?.user || !canEditAsBuilder(session.user.role)) throw new Error("Не авторизован");
   const object = await prisma.constructionObject.findFirst({
     where: { id: objectId, builderId: session.user.id },
   });
